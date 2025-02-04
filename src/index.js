@@ -1,15 +1,10 @@
 const express = require('express');
 const app = express();
 const {runDatabase} = require('./config/database');
-const {getMovieDataByName} = require('./module/movies/index')
+const movieRoutes = require('./routes/movies');
+
 app.use(express.json());
-/*runDatabase();*/
-
-app.post('/filme', async (req, res) =>{
-    const {name_movie} = req.body
-    const movie_data = await getMovieDataByName(name_movie)
-    res.send(movie_data)
-
-})
-
+app.use('/api', movieRoutes);
 app.listen(3000);
+
+runDatabase();

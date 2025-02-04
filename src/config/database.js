@@ -7,7 +7,7 @@ async function runDatabase(){
         console.log("Database connected");
     } catch(error){
         console.error(error)
-        console.log("Error on conect database");
+        console.log("Error on connect database");
         process.exit(1);
     }
 }

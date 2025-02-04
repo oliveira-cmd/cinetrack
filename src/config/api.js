@@ -8,7 +8,6 @@ async function callApi(method, path){
         'Authorization': 'Bearer ' + process.env.API_TOKEN 
     }
     const api_version = '3/'
-    let body_data=[];
     
     try {
         const options = {
