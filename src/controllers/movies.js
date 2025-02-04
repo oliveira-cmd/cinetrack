@@ -1,4 +1,4 @@
-const {callApi} = require('../config/api')
+const {callApi} = require('../utils/api')
 const Movies = require('../model/movies');
 const { v4: uuidv4 } = require('uuid');
 
