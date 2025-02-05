@@ -1,6 +1,7 @@
 const {callApi} = require('../utils/api')
 const Movies = require('../model/movies');
 const LogsController = require('../middlewares/logs');
+const HistoryController = require('../controllers/history');
 const {dateNow} = require('../utils/date')
 const { v4: uuidv4 } = require('uuid');
 
@@ -42,7 +43,7 @@ const MovieController = {
                     dataLog.movieId = uuid;
                     dataLog.message = message;
                     dataLog.statusCode = 200;
-                    res.status(200).json({message: message})
+                    res.status(200).json({message: message, data: movie})
 
                     LogsController.saveLog(req.user.data.username,dataLog)
                 } else {
@@ -142,6 +143,7 @@ const MovieController = {
             timeStamp: await dateNow(),
         };
 
+      
         
         try {
             const status_permitidos = ['a assistir','assistido', 'avaliado','recomendado','nao recomendado'];
@@ -149,7 +151,17 @@ const MovieController = {
 
             const movie_data = await Movies.find({uuid:id});
             if(movie_data && status_permitidos.includes(status)){
+                console.log('movie_data: ',movie_data[0].status)
                 const movie = await Movies.findOneAndUpdate({uuid: id},{status:status});
+                const dataHistory = {
+                    username: req.user.data.username,
+                    uuid: id,
+                    oldStatus: movie_data[0].status,
+                    newStatus: status,
+                    time: await dateNow()
+                };
+        
+                HistoryController.addHistory(dataHistory)
                 movie.status = status;
 
                 dataLog.message = `O filme ${id} teve seu status atualizado para ${status}`;
