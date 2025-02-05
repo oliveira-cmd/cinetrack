@@ -1,6 +1,6 @@
 const {callApi} = require('../utils/api')
 const Movies = require('../model/movies');
-const LogsController = require('../controllers/logs');
+const LogsController = require('../middlewares/logs');
 const {dateNow} = require('../utils/date')
 const { v4: uuidv4 } = require('uuid');
 
@@ -17,14 +17,26 @@ const MovieController = {
             const name = req.body.name
 
             const movie_data = await callApi('GET', 'search/movie?query=' + encodeURIComponent(name));
-    
+            const genre = await callApi('GET', 'genre/movie/list?language=en');
             if (movie_data.results) {
                 const data = movie_data.results.filter(result => result.original_title === name);
     
                 if(data.length){
+                    const genre_name = [];
+                    if(genre){
+                        const genres = genre.genres;
+                        const genre_names = genres.map(gen => {
+                            if(data[0].genre_ids.includes(gen.id)){
+                                genre_name.push(gen.name)
+                            }
+                            
+                        })
+                    }
                     const uuid = uuidv4();
-                    const {title, overview, original_language} = data[0];                    
-                    const movie = new Movies({uuid, title, overview, original_language})
+                    const {title, overview, release_date} = data[0];     
+                    const gen_names =  JSON.stringify(genre_name);
+                    console.log({uuid, title, overview, release_date,gen_names})
+                    const movie = new Movies({uuid, title, overview, release_date,gen_names})
                     await movie.save();
                     let message = `O filme ${name} foi adicionado a lista de desejos com sucesso!`;
                     dataLog.movieId = uuid;
