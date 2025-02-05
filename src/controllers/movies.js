@@ -135,60 +135,75 @@ const MovieController = {
         }
     },
     
-    async updateStatusMovieByUuid(req, res){
-
+    async updateStatusMovieByUuid(req, res) {
+        const { id, status } = req.params;
+    
         const dataLog = {
             method: req.method,
             url: req.rawHeaders[1] + req.originalUrl,
             timeStamp: await dateNow(),
         };
-
-      
-        
+    
         try {
-            const status_permitidos = ['a assistir','assistido', 'avaliado','recomendado','nao recomendado'];
-            const {id, status} = req.params
-
-            const movie_data = await Movies.find({uuid:id});
-            if(movie_data && status_permitidos.includes(status)){
-                console.log('movie_data: ',movie_data[0].status)
-                const movie = await Movies.findOneAndUpdate({uuid: id},{status:status});
-                const dataHistory = {
-                    username: req.user.data.username,
-                    uuid: id,
-                    oldStatus: movie_data[0].status,
-                    newStatus: status,
-                    time: await dateNow()
-                };
-        
-                HistoryController.addHistory(dataHistory)
-                movie.status = status;
-
-                dataLog.message = `O filme ${id} teve seu status atualizado para ${status}`;
-                dataLog.statusCode = 200;
-                res.status(200).json({movie})
-                LogsController.saveLog(req.user.data.username,dataLog)
-            } else if(!status_permitidos.includes(status)){
-                const message = `O filme ${id} não teve seu status atualizado pois foi inserido o status ${status} que não é válido`;
-                dataLog.message = message   
-                dataLog.statusCode = 200;
-                res.status(200).json({message: message, status: status_permitidos})
-                LogsController.saveLog(req.user.data.username,dataLog)
-            }else {
-                const message = `Não foi encontrado nenhum filme com o id: ${id}`;
+            const statusPermitidos = ['a assistir', 'assistido', 'avaliado', 'recomendado', 'nao recomendado'];
+    
+            if (!statusPermitidos.includes(status)) {
+                const message = `O status "${status}" não é válido.`;
                 dataLog.message = message;
-                dataLog.statusCode = 200;
-                res.status(200).json({message: message})
-                LogsController.saveLog(req.user.data.username,dataLog)
+                dataLog.statusCode = 400;
+                LogsController.saveLog(req.user.data.username, dataLog);
+                return res.status(400).json({ message, statusPermitidos });
             }
-        } catch(error){
+    
+            const movie = await Movies.findOne({ uuid: id });
+    
+            if (!movie) {
+                const message = `Filme com ID "${id}" não encontrado.`;
+                dataLog.message = message;
+                dataLog.statusCode = 404;
+                LogsController.saveLog(req.user.data.username, dataLog);
+                return res.status(404).json({ message });
+            }
+    
+            const transicoesValidas = {
+                'a assistir': ['assistido'],
+                'assistido': ['avaliado'],
+                'avaliado': ['recomendado', 'nao recomendado'],
+            };
+    
+            if (!transicoesValidas[movie.status]?.includes(status)) {
+                const message = `A transição de "${movie.status}" para "${status}" não é permitida.`;
+                dataLog.message = message;
+                dataLog.statusCode = 400;
+                LogsController.saveLog(req.user.data.username, dataLog);
+                return res.status(400).json({ message });
+            }
+    
+            movie.status = status;
+            await movie.save();
+
+            const dataHistory = {
+                username: req.user.data.username,
+                uuid: id,
+                oldStatus: movie.status,
+                newStatus: status,
+                time: await dateNow(),
+            };
+            HistoryController.addHistory(dataHistory);
+    
+            dataLog.message = `O filme "${id}" teve seu status atualizado para "${status}".`;
+            dataLog.statusCode = 200;
+            LogsController.saveLog(req.user.data.username, dataLog);
+    
+            return res.status(200).json({ movie });
+        } catch (error) {
             dataLog.message = error.message;
             dataLog.statusCode = 500;
-            res.status(500).json({message: 'Ocorreu um erro ao realizar a requisição', error: error.message})
-            LogsController.saveLog(req.user.data.username,dataLog)
+            LogsController.saveLog(req.user.data.username, dataLog);
+            return res.status(500).json({ message: 'Ocorreu um erro ao realizar a requisição', error: error.message });
         }
     },
-    
+
     async getMovieDataByUuid(req, res){
         
         const dataLog = {
