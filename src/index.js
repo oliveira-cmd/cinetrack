@@ -4,10 +4,13 @@ const {runDatabase} = require('./utils/database');
 const movieRoutes = require('./routes/movies');
 const userRoutes = require('./routes/users')
 const authMiddleware = require('./middlewares/auth')
+const MiddlewareController = require('./controllers/middleware');
 
 app.use(express.json());
 app.use('/user', userRoutes);
 app.use('/api',authMiddleware,movieRoutes);
+
+app.get('/token',MiddlewareController.getUsernameByJwt)
 app.listen(3000);
 
 runDatabase();

@@ -21,6 +21,13 @@ const MiddlewareController = {
         } catch(error){
             res.status(500).json({message: 'Ocorreu um erro ao realizar a requisição', error: error.message})
         }
+    },
+
+    async getUsernameByJwt(req, res){
+
+        jwt.verify(req.body.token, process.env.JWT_TOKEN, function(err, decoded) {
+            console.log(decoded)
+        });
     }
 
 }

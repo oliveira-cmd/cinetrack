@@ -1,5 +1,6 @@
 const {callApi} = require('../utils/api')
 const Movies = require('../model/movies');
+const LogsController = require('../controllers/logs');
 const { v4: uuidv4 } = require('uuid');
 
 const MovieController = {
@@ -16,7 +17,12 @@ const MovieController = {
                     const uuid = uuidv4();
                     const {title, overview, original_language} = data[0];                    
                     const movie = new Movies({uuid, title, overview, original_language})
-                    await movie.save()
+                    await movie.save();
+                    const timestamps = {
+                        createdAt: movie.createdAt,
+                        updatedAt: movie.updatedAt
+                    }
+                    LogsController.saveLog(req.user.data.username,req.method, req.rawHeaders[1]+req.originalUrl, timestamps, movie._id)
                     res.status(200).json({message: `O filme ${name} foi adicionado a lista de desejos com sucesso!`})
                 } else {
                     res.status(200).json({message: `Nenhum filme foi encontrado com o nome ${name}. De uma olhada em nossa documentação e consulte o metodo que traz todos os filmes disponiveis.`})
