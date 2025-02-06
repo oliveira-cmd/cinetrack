@@ -1,0 +1,199 @@
+openapi: 3.0.0
+info:
+  title: CineTrack API
+  description: API para gerenciar lista de desejos de filmes
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor local
+
+paths:
+
+  /historico/{id}:
+    get:
+      summary: Obtém o histórico de um filme
+      tags:
+        - Histórico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Histórico retornado com sucesso
+        "404":
+          description: Nenhum histórico encontrado
+
+  /logs:
+    get:
+      summary: Obtém todos os logs do sistema
+      tags:
+        - Logs
+      responses:
+        "200":
+          description: Lista de logs retornada com sucesso
+
+  /movie:
+    get:
+      summary: Obtém filmes de uma API externa
+      tags:
+        - Filmes Externos
+      responses:
+        "200":
+          description: Lista de filmes externos retornada com sucesso
+        "500":
+          description: Erro ao buscar filmes externos
+
+  /filme:
+    get:
+      summary: Obtém todos os filmes cadastrados
+      tags:
+        - Filmes
+      responses:
+        "200":
+          description: Lista de filmes retornada com sucesso
+    post:
+      summary: Adiciona um novo filme
+      tags:
+        - Filmes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Movie"
+      responses:
+        "201":
+          description: Filme cadastrado com sucesso
+        "400":
+          description: Erro ao cadastrar filme
+
+  /filme/{id}:
+    get:
+      summary: Obtém um filme pelo UUID
+      tags:
+        - Filmes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Filme encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movie"
+        "404":
+          description: Filme não encontrado
+
+  /filme/{id}/{rating}:
+    post:
+      summary: Atualiza a avaliação (rating) de um filme
+      tags:
+        - Filmes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rating
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        "200":
+          description: Avaliação do filme atualizada com sucesso
+        "400":
+          description: Erro ao atualizar a avaliação
+
+  /filme/{id}/{status}:
+    put:
+      summary: Atualiza o status de um filme
+      tags:
+        - Filmes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: ["a assistir", "assistido", "avaliado", "recomendado", "não recomendado"]
+      responses:
+        "200":
+          description: Status do filme atualizado com sucesso
+        "400":
+          description: Erro ao atualizar status do filme
+
+  /:
+    post:
+      summary: Cadastra um novo usuário
+      tags:
+        - Usuários
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "201":
+          description: Usuário cadastrado com sucesso
+        "400":
+          description: Erro ao cadastrar usuário
+
+  /token:
+    get:
+      summary: Gera um token de autenticação
+      tags:
+        - Autenticação
+      responses:
+        "200":
+          description: Token gerado com sucesso
+        "500":
+          description: Erro ao gerar token
+
+components:
+  schemas:
+    Movie:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: "64bfc8c0b4a3d4a3d4b5c7f1"
+        title:
+          type: string
+          example: "Inception"
+        status:
+          type: string
+          enum: ["a assistir", "assistido", "avaliado", "recomendado", "não recomendado"]
+        release_date:
+          type: string
+          format: date
+          example: "2010-07-16"
+
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "johndoe"
+        email:
+          type: string
+          example: "johndoe@email.com"
+        password:
+          type: string
+          format: password

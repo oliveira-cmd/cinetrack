@@ -3,7 +3,8 @@ require("dotenv").config();
 
 async function runDatabase(){
     try{
-        await mongoose.connect(process.env.URI_CONNECT, {});
+        const mongoUri = process.env.URI_CONNECT || 'mongodb://localhost:27017/cinetrack';
+        await mongoose.connect(mongoUri, {});
         console.log("Database connected");
     } catch(error){
         console.error(error)

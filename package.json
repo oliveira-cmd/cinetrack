@@ -19,6 +19,8 @@
     "mongoose": "^8.9.6",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.1.9",
-    "uuid": "^11.0.5"
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^11.0.5",
+    "yamljs": "^0.3.0"
   }
 }

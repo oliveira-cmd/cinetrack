@@ -7,6 +7,11 @@ const logRoutes = require('./routes/logs');
 const historyRoutes = require('./routes/history');
 const authMiddleware = require('./middlewares/auth')
 const MiddlewareController = require('./controllers/middleware');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+
+const swaggerDocument = YAML.load('./src/swagger.yaml');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(express.json());
 app.use('/user', userRoutes);
