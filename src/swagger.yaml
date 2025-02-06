@@ -12,7 +12,7 @@ paths:
 
   /historico/{id}:
     get:
-      summary: Obtém o histórico de um filme
+      summary: Obtém o histórico de um filme pelo Uuid do filme
       tags:
         - Histórico
       parameters:
@@ -36,11 +36,17 @@ paths:
         "200":
           description: Lista de logs retornada com sucesso
 
-  /movie:
+  /movie?page={page}:
     get:
-      summary: Obtém filmes de uma API externa
+      summary: Obtém filmes de uma API externa com paginacao
       tags:
         - Filmes Externos
+      parameters:
+        - name: page
+          in: path
+          required: true
+          schema:
+            type: number
       responses:
         "200":
           description: Lista de filmes externos retornada com sucesso
@@ -49,14 +55,14 @@ paths:
 
   /filme:
     get:
-      summary: Obtém todos os filmes cadastrados
+      summary: Obtém todos os filmes cadastrados na lista de desejos
       tags:
         - Filmes
       responses:
         "200":
           description: Lista de filmes retornada com sucesso
     post:
-      summary: Adiciona um novo filme
+      summary: Adiciona um novo filme na lista de desejos
       tags:
         - Filmes
       requestBody:
@@ -160,6 +166,9 @@ paths:
       summary: Gera um token de autenticação
       tags:
         - Autenticação
+      requestBody:
+        required: true
+
       responses:
         "200":
           description: Token gerado com sucesso
@@ -171,19 +180,9 @@ components:
     Movie:
       type: object
       properties:
-        uuid:
+        name:
           type: string
-          example: "64bfc8c0b4a3d4a3d4b5c7f1"
-        title:
-          type: string
-          example: "Inception"
-        status:
-          type: string
-          enum: ["a assistir", "assistido", "avaliado", "recomendado", "não recomendado"]
-        release_date:
-          type: string
-          format: date
-          example: "2010-07-16"
+          example: "Alien: Romulus"
 
     User:
       type: object
@@ -191,9 +190,6 @@ components:
         username:
           type: string
           example: "johndoe"
-        email:
-          type: string
-          example: "johndoe@email.com"
         password:
           type: string
           format: password

@@ -11,7 +11,13 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 
 const swaggerDocument = YAML.load('./src/swagger.yaml');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const swaggerOptions  = {
+    swaggerOptions:{
+        cacheControl: 'no-cache'
+    }
+};
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 app.use(express.json());
 app.use('/user', userRoutes);
